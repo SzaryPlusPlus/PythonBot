@@ -169,14 +169,20 @@ class ImageHandling():
         FoundList = []
         
         #Lets start from the around the champ so 245, 160
+        #x = 280
+        #y = 170
+        
         x = 280
-        y = 170
+        y = 2
+        
+        
+        
         #restrictions to ease looking for snakes:D to be included into objects passed
         #yResWithoutBottomMenu = 420
-        yResWithoutBottomMenu = 340 #LIMITED AROUND CHARACTER
+        yResWithoutBottomMenu = 420 #LIMITED AROUND CHARACTER
         yResWithouthHealthBar = 25
         
-        while (x < 380):#LIMITED AROUND CHARACTER, SHOULD BE 640
+        while (x < 640):#LIMITED AROUND CHARACTER, SHOULD BE 640
             y = yResWithouthHealthBar
             while(y < yResWithoutBottomMenu):
                 if(self.CompareWithSamples(x,y)):

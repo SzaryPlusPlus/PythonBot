@@ -17,7 +17,7 @@ def TestSnakeHit():
             mouse.Press(0.1)
         i = i + 1'''
     Obraz = Img.ImageHandling("")
-    Obraz.LoadSampleImages("SamplesDay","snake",2)
+    Obraz.LoadSampleImages("SamplesNight","snake",2)
     while(i < 10000):
         print("Looking for snakes!...")
         time.sleep(0.01)
@@ -26,7 +26,7 @@ def TestSnakeHit():
         x,y = Obraz.FindObjectInPicture(True)
         if(x != -1):
             mouse.MovePixels(x,y)
-            mouse.RightClick(4)
+            mouse.RightClick(0.3)
             #move it back so it does  not cover
             mouse.MovePixels(0,0)
         i = i + 1
