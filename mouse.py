@@ -11,7 +11,7 @@ def move(x,y):
     #win32api.mouse_event(win32con.MOUSEEVENTF_MOVE | win32con.MOUSEEVENTF_ABSOLUTE, int(x/640*65535.0), int(y/480*65535.0))
     win32api.mouse_event(win32con.MOUSEEVENTF_MOVE | win32con.MOUSEEVENTF_ABSOLUTE, int(x), int(y))
 
-def Press(seconds):
+def LeftClick(seconds):
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,0,0)
     time.sleep(seconds)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,0,0)

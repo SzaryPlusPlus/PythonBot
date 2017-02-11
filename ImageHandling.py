@@ -124,19 +124,21 @@ class ImageHandling():
         self.im.save("Found.png")
         #if not probably try
     
-    def CropFromPicture(self, cordsList, SquareSize):
+    def CropFromPicture(self, cordsList, SquareSize, DestFolderName):
         #y_len = len(self.imPixList)    
         #x_len = len(self.imPixList[0]) 
+        if not os.path.exists(DestFolderName):
+            os.makedirs(DestFolderName)
         
         dr = ImageDraw.Draw(self.im)
         for cord in cordsList:
             x = cord[0]
             y = cord[1]
             CroppedIm = self.im.crop((x, y, x+SquareSize, y+SquareSize))
-            CroppedIm.save("GeneratedSamples\\"+str(x)+"x"+str(y)+".bmp")
-            
+            CroppedIm.save(DestFolderName+"\\"+str(x)+"x"+str(y)+".bmp")
+    
    
-    def FindObjectInPicture(self, first):
+    def FindObjectInPicture(self, first, startX,startY):
         found = 0
         FoundList = []
         
@@ -144,15 +146,20 @@ class ImageHandling():
         #x = 280
         #y = 170
         
-        x = 0
-        y = 0      
+        #this does nto wrk at the moment
+        x = startX
+        y = startY      
         
         
         #restrictions to ease looking for snakes:D to be included into objects passed
         #yResWithoutBottomMenu = 420
         yResWithoutBottomMenu = 420 #LIMITED AROUND CHARACTER
         yResWithouthHealthBar = 25
-        
+        #lets start from where the cell left from character which should be at 280, 180
+        xDefaultStart = 280
+        yDefaultStart = 180
+        x = xDefaultStart
+        y = yDefaultStart
         while (x < 640):#LIMITED AROUND CHARACTER, SHOULD BE 640
             y = yResWithouthHealthBar
             while(y < yResWithoutBottomMenu):
@@ -164,6 +171,20 @@ class ImageHandling():
                     FoundList.append((x,y))
                 y = y + 1
             x = x + 1
+        #now lets do the rest
+        x = xDefaultStart
+        while (x > 0):#LIMITED AROUND CHARACTER, SHOULD BE 640
+            y = yDefaultStart
+            while(y > 0):
+                if(self.CompareWithSamples(x,y)):
+                    print("Found!")
+                    if(first):
+                        print("Return!")
+                        return (x,y)
+                    FoundList.append((x,y))
+                y -= 1
+            x -= 1
+            
         if(first):            
             return (-1,-1)
         else:
@@ -190,11 +211,11 @@ def CreateProbingCords():
         x += 30
         
 def TestColors():
-    Obraz = ImageHandling("SnakesPrint2.bmp")
+    Obraz = ImageHandling("OrcPrintDay.bmp")
     #print(Obraz.imPixList)
-    Obraz.LoadSampleImages("GeneratedSamples","",2)
+    Obraz.LoadSampleImages("OrcsDay","",2)
     #Obraz.LoadSampleImagesFromSprites("Orc", "Orc", 2, 56, 14)
-    FoundCordsList = Obraz.FindObjectInPicture(False)
+    FoundCordsList = Obraz.FindObjectInPicture(False,0,0)
     #print(Snakes)
     #print(Obraz.MoreThanOnepix)
     
@@ -203,9 +224,12 @@ def TestColors():
     Obraz.HighLightOnPicture(FoundCordsList,2)
 
 #TestColors()
-#Obraz = ImageHandling("OrcPrint.bmp")
-#Obraz.LoadSampleImages("SampleImgages","snake",2)
 
+#Obraz = ImageHandling("OrcPrintNight.bmp")
+#Obraz.LoadSampleImages("SampleImgages","snake",2)
+#TestList = [[289, 190], [289, 220], [289, 247], [349, 190], [349, 220], [349, 237], [320, 215], [350, 157]]
+#Obraz.HighLightOnPicture(TestList,2)
+#Obraz.CropFromPicture(TestList,2,"OrcsNight")
 #Obraz.LoadSampleImagesFromSprites("Orc","Orc",2)
 #Obraz.LoadSampleImages("Orc","cropped",2)
 '''for Image in Obraz.SampleImages:
