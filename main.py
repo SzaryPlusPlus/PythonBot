@@ -17,7 +17,7 @@ def TestSnakeHit():
             mouse.Press(0.1)
         i = i + 1'''
     Obraz = Img.ImageHandling("")
-    Obraz.LoadSampleImages("SamplesNight","snake",2)
+    Obraz.LoadSampleImages("GeneratedSamples","",2)
     while(i < 10000):
         print("Looking for snakes!...")
         time.sleep(0.01)

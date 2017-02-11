@@ -56,9 +56,27 @@ class ImageHandling():
         for root, dirs, files in os.walk(Dir):
             for file in files:            
                 if PartName in file and file.endswith(".bmp"):
-                     filename = os.path.join(root, file)
+                     filename = os.path.join(root, file)                     
+                     print("Loading: ",filename)
                      SampleIm = Image.open(filename)
                      self.SampleImages.append(SampleIm.load())
+                     print("Loaded: ",filename)
+        print("Loaded all")
+    
+    def LoadSampleImagesFromSprites(self, Dir,PartName,SquareSize,x,y):
+        print("Loading Sample Pictures from Sprites...")
+        self.SquareSize = SquareSize
+        i = 0
+        for root, dirs, files in os.walk(Dir):
+            for file in files:            
+                if PartName in file and file.endswith(".bmp"):
+                     filename = os.path.join(root, file)
+                     SampleIm = Image.open(filename).convert("RGB")
+                     CroppedIm = SampleIm.crop((x, y, x+SquareSize, y+SquareSize))
+                     CroppedIm.save("cropped\croppedNew"+str(i)+".bmp")
+                     i += 1
+                     self.SampleImages.append(CroppedIm.load())
+        print("Finished!")
                      
     
     def CompareWithSamples(self,xcord,ycord):
@@ -88,82 +106,36 @@ class ImageHandling():
         rgbList = self.im.load()
         return rgbList
 
-    def FindSnake2(self):
-        x_cord = 0
-        y_cord = 0
-        found = 0
-        
-        for pixel in self.imPixList:
-            for snakeColor in self.AllsnakeColors:
-                if pixel[0] ==  snakeColor[0] and pixel[1] ==  snakeColor[1] and pixel[2] ==  snakeColor[2]:
-                    print("found at: ",x_cord,y_cord)
-                    found = 1
-                    #return (x_cord,y_cord)
-                if(y_cord >= 639
-                ):
-                    x_cord = 0
-                    y_cord = y_cord + 1
-                else:
-                    x_cord = x_cord + 1
 
-    def HighLightOnPicture(self,cordsList):
+    def HighLightOnPicture(self, cordsList, SquareSize):
         #y_len = len(self.imPixList)    
         #x_len = len(self.imPixList[0]) 
         
         dr = ImageDraw.Draw(self.im)
         for cord in cordsList:
-            dr.rectangle(((cord[0],cord[1]),(cord[0]+2,cord[1]+2)), fill="red", outline = "blue")
-        
-        '''if(x+1 <= x_len):
-            self.imPixList[x+1][y] = (255,0,0)
-            if(y+1 <= y_len):
-                self.imPixList[x+1][y+1] = (255,0,0)
-        if(y+1 <= y_len):
-            self.imPixList[x][y+1] = (255,0,0)
-        if(x-1 >= 0):
-            self.imPixList[x-1][y] = (255,0,0)
-            if(y-1 >= 0):
-                self.imPixList[x-1][y-1] = (255,0,0)
-        if(y-1 >= 0):
-            self.imPixList[x][y-1] = (255,0,0)'''
+            x = cord[0]
+            y = cord[1]
+            dr.rectangle(((x,y),(x+SquareSize,y+SquareSize)), fill="red", outline = "blue")
+            #CroppedIm = self.im.crop((x, y, x+SquareSize, y+SquareSize))
+            #CroppedIm.save("GeneratedSamples\\"+str(x)+"x"+str(y)+".bmp")
             
         #@TODO check if the im object is also changed when chanign pix list
         #self.im.show()
         self.im.save("Found.png")
         #if not probably try
-    def FindObjectInPictureMorePixes(self,ObjectToFind, first):
-        print("FindObjectInPictureMorePixes...")
-        found = 0
-        FoundList = []
+    
+    def CropFromPicture(self, cordsList, SquareSize):
+        #y_len = len(self.imPixList)    
+        #x_len = len(self.imPixList[0]) 
         
-        x = 0
-        y = 0
-        #restrictions to ease looking for snakes:D to be included into objects passed
-        yResWithoutBottomMenu = 420
-        yResWithouthHealthBar = 25
-        
-        while (x < 640):
-            y = yResWithouthHealthBar
-            while(y < yResWithoutBottomMenu):
-                colorIndex = 0
-                while(colorIndex < len(ObjectToFind)):
-                    #print(self.imPixList[x,y])
-                    if self.imPixList[x,y][0] ==  ObjectToFind[colorIndex][0] and self.imPixList[x,y][1] ==  ObjectToFind[colorIndex][1] and self.imPixList[x,y][2] ==  ObjectToFind[colorIndex][2]:
-                        if self.imPixList[x,y+1][0] ==  ObjectToFind[colorIndex+1][0] and self.imPixList[x,y+1][1] ==  ObjectToFind[colorIndex+1][1] and self.imPixList[x,y+1][2] ==  ObjectToFind[colorIndex+1][2]:
-                            print("Object found at: ",x,y)
-                            FoundList.append((x,y))
-                            #self.HighLightOnPicture(x,y)
-                            if(first):
-                                print("Return!")
-                                return (x,y)
-                            found = 1
-                    colorIndex = colorIndex + 2
-                y = y + 1
-            x = x + 1
-        if(first):            
-            return (-1,-1)
-        else:
-            return FoundList
+        dr = ImageDraw.Draw(self.im)
+        for cord in cordsList:
+            x = cord[0]
+            y = cord[1]
+            CroppedIm = self.im.crop((x, y, x+SquareSize, y+SquareSize))
+            CroppedIm.save("GeneratedSamples\\"+str(x)+"x"+str(y)+".bmp")
+            
+   
     def FindObjectInPicture(self, first):
         found = 0
         FoundList = []
@@ -172,9 +144,8 @@ class ImageHandling():
         #x = 280
         #y = 170
         
-        x = 280
-        y = 2
-        
+        x = 0
+        y = 0      
         
         
         #restrictions to ease looking for snakes:D to be included into objects passed
@@ -205,67 +176,43 @@ class ImageHandling():
                 y = y + 1
             x = x + 1
         return sum
-    def FindObjectGeryScale(self,ObjectToFind, first):
-        found = 0
-        FoundList = []
         
-        x = 0
-        y = 0
-        #restrictions to ease looking for snakes:D to be included into objects passed
-        yResWithoutBottomMenu = 420
-        yResWithouthHealthBar = 25
+def CreateProbingCords():
+    x = 289
+    y = 190
+    
+    while(x <= 350):
         
-        while (x < 640):
-            y = yResWithouthHealthBar
-            while(y < yResWithoutBottomMenu):
-                for color in ObjectToFind:
-                    #print(self.imPixList[x,y][0])
-                    
-                    if self.Sum(x,y) == color:
-                        print("Object found at: ",x,y)
-                        FoundList.append((x,y))
-                        #self.HighLightOnPicture(x,y)
-                        if(first):
-                            print("Return!")
-                            return (x,y)
-                        found = 1
-                y = y + 1
-            x = x + 1
-        if(first):            
-            return (-1,-1)
-        else:
-            return FoundList
-
-    def FindSnake(self):
-        x_cord = 0
-        y_cord = 0
-        found = 0
-        for pixel in self.imPixList:
-            for snakeColor in AllsnakeColors:
-                if pixel[0] ==  snakeColor[0] and pixel[1] ==  snakeColor[1] and pixel[2] ==  snakeColor[2]:
-                    print("found at: ",x_cord,y_cord)
-                    found = 1
-                    #return (x_cord,y_cord)
-                if(y_cord >= 639
-                ):
-                    x_cord = 0
-                    y_cord = y_cord + 1
-                else:
-                    x_cord = x_cord + 1
-        
-        return (-1,-1)
+        y = 190
+        while(y <= 250):   
+            TestList.append([x,y])
+            y += 30
+        x += 30
         
 def TestColors():
-    Obraz = ImageHandling("Nemesis2.bmp")
+    Obraz = ImageHandling("SnakesPrint2.bmp")
     #print(Obraz.imPixList)
-    Obraz.LoadSampleImages("SampleImgages","snake",2)
-    Snakes = Obraz.FindObjectInPicture(False)
-    print(Snakes)
+    Obraz.LoadSampleImages("GeneratedSamples","",2)
+    #Obraz.LoadSampleImagesFromSprites("Orc", "Orc", 2, 56, 14)
+    FoundCordsList = Obraz.FindObjectInPicture(False)
+    #print(Snakes)
     #print(Obraz.MoreThanOnepix)
-    Obraz.HighLightOnPicture(Snakes)
+    
+    #TestList = [[289, 190], [289, 220], [289, 251], [319, 250], [349, 190], [349, 220], [349, 250]]
+    #print(TestList)
+    Obraz.HighLightOnPicture(FoundCordsList,2)
 
-#Obraz = ImageHandling("Nemesis2.bmp")
+#TestColors()
+#Obraz = ImageHandling("OrcPrint.bmp")
 #Obraz.LoadSampleImages("SampleImgages","snake",2)
+
+#Obraz.LoadSampleImagesFromSprites("Orc","Orc",2)
+#Obraz.LoadSampleImages("Orc","cropped",2)
+'''for Image in Obraz.SampleImages:
+    print (Image[0,0])
+    print (Image[1,0])
+    print (Image[0,1])
+    print (Image[1,1])'''
 
 #GettingRGBSum("snake1.bmp")
 #GettingRGBSum("snake2.bmp")

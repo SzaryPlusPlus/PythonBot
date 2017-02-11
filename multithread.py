@@ -5,37 +5,19 @@ import threading
 import Queue
 
 print("Started sleeping...")
-time.sleep(1)
+time.sleep(8)
 print("Testing!")
-def TestSnakeHit():
-    i = 0
-    '''while(i < 10000):
-        time.sleep(0.01)
-        Obraz = Img.ImageHandling("")
-        #print (Obraz.imPixList[1,1])
-        x,y = Obraz.FindObjectInPicture(Obraz.AllBodySnake2, True)
-        if(x != -1):
-            mouse.MovePixels(x,y)
-            mouse.Press(0.1)
-        i = i + 1'''
-    Obraz = Img.ImageHandling("")
-    Obraz.LoadSampleImages("SamplesNight","snake",2)
-    print("Looking for snakes!...")
-    print(time.ctime(time.time()))
-    time.sleep(0.01)
-    print("GrabImage...")
+
+Obraz = Img.ImageHandling("")
+Obraz.LoadSampleImages("GeneratedSamples","",2)
+
+def TestSnakeHit(): 
+    print("Grabbing image")
     Obraz.GrabImage()
-    #print (Obraz.imPixList[1,1])
-    print("FindObjectInPicture...")
+    print("FindObjectInPicture")
     x,y = Obraz.FindObjectInPicture(True)
-    print("return...")
-    time.ctime(time.time())
+    print("return")
     return(x,y)
-    '''if(x != -1):
-        mouse.MovePixels(x,y)
-        mouse.RightClick(0.3)
-        #move it back so it does  not cover
-        mouse.MovePixels(0,0)'''
         
 def TestMouseMove():
     repeat = 0 
@@ -48,7 +30,7 @@ def TestMouseMove():
 #TestSnakeHit()
 
 # Create new threads
-class imthread (threading.Thread):
+class SnakesThread (threading.Thread):
     def __init__(self, threadID, name, counter,queue):
         threading.Thread.__init__(self)
         self.threadID = threadID
@@ -56,14 +38,15 @@ class imthread (threading.Thread):
         self.counter = counter
         self.queue = queue
     def run(self):
+        global queueLock
         print "Starting " + self.name
         while(self.counter > 0):
             xy = TestSnakeHit()
-            print("acquire lock from imthread")
+            #print("acquire lock from imthread")
             queueLock.acquire()
             self.queue.put(xy)
             queueLock.release()
-            print("released lock from imthread")
+            #print("released lock from imthread")
             self.counter -= 1
         print "Exiting " + self.name
         
@@ -77,35 +60,41 @@ class printThread (threading.Thread):
         self.queue = queue
     def run(self):
         print "Starting " + self.name
+        global queueLock
         while(self.counter > 0):
-            print("acquire lock from printThread")
+            #print("acquire lock from printThread")
             queueLock.acquire()
             if not workQueue.empty():
-                print(self.queue.get())
+                x,y = self.queue.get()
+                if(x > 0):
+                    mouse.MovePixels(x,y)
+                    mouse.RightClick(0.5)
+                    #move it back so it does  not cover
+                    mouse.MovePixels(0,0)
                 queueLock.release()
             else:
                 print("empty")
                 queueLock.release()
-                time.sleep(1)
-            print("released lock from printThread")
+                time.sleep(0.1)
+            #print("released lock from printThread")
             self.counter -= 1
         print "Exiting " + self.name
         
 # Create new threads
 queueLock = threading.Lock()
-workQueue = Queue.Queue(10)
+workQueue = Queue.Queue(3)
 
-thread1 = imthread(1, "ImageThread\n", 10,workQueue)
-thread2 = printThread(2, "Thread-2\n", 10,workQueue)
+thread1 = SnakesThread(1, "SnakesThread\n", 1000,workQueue)
+thread2 = printThread(2, "printThread\n", 1000,workQueue)
 
 # Start new Threads
 thread1.start()
-time.sleep(5)
+#time.sleep(5)
 thread2.start()
 
 #empty loop
 print("main idle")
-time.sleep(10)
+time.sleep(60)
 
 thread1.join()
 thread2.join()
